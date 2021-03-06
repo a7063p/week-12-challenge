@@ -1,23 +1,28 @@
 const {prompt} = require('inquirer');
 const db= require('./db');
+const cTable = require('console.table');
 
 function startApp () {
     prompt([
         {
             type: 'list',
             name: 'queryType',
-            message: 'What would you like to select?',
+            message: 'What would you like to do?',
             choices: [
                { 
-                name: 'Select All',
-                value: 'ALL'
+                name: 'View all Employees',
+                value: 'employeeAll'
                },
                {
-                name: 'Select by ID',
-                value: 'BY_ID'
+                name: 'View All Employees By Department',
+                value: 'departmentEmployees'
                },
                {
-                name: 'Stop',
+                name: 'View All Employees By Manager',
+                value: 'managerEmployees'
+               },
+               {
+                name: 'EXIT Employee Tracker',
                 value: 'END'
                }
             ]
@@ -25,13 +30,17 @@ function startApp () {
     ])
     .then(({queryType}) => {
         switch (queryType) {
-            case 'BY_ID': 
-            selectOne();
+            case 'employeeAll':
+            viewAllEmployees();
             break;
-    
-            case 'ALL':
-            selectAll();
-            break;
+
+            case 'departmentEmployees':           
+            viewAllDepartments();
+            break;       
+
+            case 'managerEmployees':           
+            viewAllManagers();
+            break;               
     
             default: 
                 db.connection.end();
@@ -41,30 +50,49 @@ function startApp () {
 
 }
 
-
-function selectAll() {
+// ALL Employees//
+function viewAllEmployees() {
     db.findAllEmployees()
     .then(([data])=> {
         console.table(data);
         startApp()
     })
-}
+};
 
+//  View Departments Employees//
+function viewAllDepartments() {
+    db.findAllDepartments()
+    .then(([data]) => {
+        prompt([
+            {
+                type: 'list',
+                name: 'id',                
+                choices: data.map(p => ({value: p.id, name: p.name}))
+            }
+        ])
+        .then(({id}) => {
+            db.employeesByDepartment(parseInt(id))
+            .then(([data]) => {
+                console.table(data);
+                startApp()
+            })
+        })
+    })
+};
 
-///////////////////////////////////////
-function selectOne() {
-    db.findAllEmployees()
-    .then(([employees]) => {
+//View All Managers//
+function viewAllManagers() {
+    db.findAllManagers()
+    .then(([data])=> {
         prompt([
             {
                 type: 'list',
                 name: 'id',
-                choices: employees.map(p => p.id)
-                //choices: data.map(p => ({value: p.id, first_name: p.first_name}))
+                choices: data.map(p => ({value: p.id, name: p.first_name}))
             }
         ])
         .then(({id}) => {
-            db.findEmployeeById(parseInt(id))
+            db.employeeByManager(parseInt(id))
             .then(([data]) => {
                 console.table(data);
                 startApp()
