@@ -32,11 +32,11 @@ function startApp () {
                 value: 'managerEmployees'
                },
                {
-                name: 'Add a Department',
+                name: 'Add Department',
                 value: 'addDepartment'
                },
                {
-                name: 'Add a Role',
+                name: 'Add Role',
                 value: 'addRole'
                },
                {
@@ -50,6 +50,18 @@ function startApp () {
                {
                 name: 'Update Employee Manager',
                 value: 'updateEmployeeManager'
+               },
+               {
+                name: 'Delete Department',
+                value: 'deleteDepartment'
+               },
+               {
+                name: 'Delete Role',
+                value: 'deleteRole'
+               },
+               {
+                name: 'Delete Employee',
+                value: 'deleteEmployee'
                },
                {
                 name: 'EXIT Employee Tracker',
@@ -98,6 +110,18 @@ function startApp () {
 
             case 'updateEmployeeManager':           
             employeesManager();
+            break;         
+
+            case 'deleteDepartment':           
+            deleteDepartment();
+            break; 
+
+            case 'deleteRole':           
+            deleteRole();
+            break;               
+    
+            case 'deleteEmployee':           
+            deleteEmployee();
             break;               
     
             default: 
@@ -190,7 +214,29 @@ function addManager(data) {
             })
         })
     })
-}
+};
+function deleteEmployee(){
+    db.allEmployees()
+    .then(([data])=> {
+        prompt([
+            {
+                type: 'list',
+                name: 'deleteID',
+                message: 'Select employee to delete',
+                choices: data.map(p=> ({value: p.id, name: p.employee}))
+            }
+        ]).then(function(data){
+            connection.query('DELETE FROM employees WHERE ?',
+            {
+                id: data.deleteID
+            },
+            function(err,res){
+                if(err) throw err;
+                viewAllEmployees()
+            })
+        })
+    })
+};
 
 
 //  =======DEPARTMENT=========//
@@ -218,7 +264,7 @@ function addDepartment() {
             }
         }
     ])
-    .then( function (data) {
+    .then(function (data) {
         connection.query('INSERT INTO department SET ?',
         {
             name: data.newDeptName
@@ -250,6 +296,32 @@ function getAllDepartments() {
         })
     })
 };
+
+function deleteDepartment(){
+    db.findAllDepartments()
+    .then(([data])=> {
+        prompt([
+            {
+                type: 'list',
+                name: 'deleteID',
+                message: 'Select department to delete',
+                choices: data.map(p=> ({value: p.id, name: p.department}))
+            }
+        ]).then(function(data){
+            connection.query('DELETE FROM department WHERE ?',
+            {
+                id: data.deleteID
+            },
+            function(err,res){
+                if(err) throw err;
+                viewAllDepartments()
+            })
+        })
+    })
+};
+
+
+
 
 // ========ROLES===========//
 function viewAllRoles(){
@@ -296,7 +368,7 @@ function addRole() {
                 choices: data.map(p => ({value: p.id, name: p.department}))
             }
         ])
-        .then( function (data) {
+        .then(function (data) {
             connection.query('INSERT INTO role SET ?',
             {
                 title: data.newRoleTitle,
@@ -351,7 +423,31 @@ function updateEmployeeRole(data) {
         })
         
     })
-}
+};
+
+function deleteRole(){
+    db.findAllRoles()
+    .then(([data])=> {
+        prompt([
+            {
+                type: 'list',
+                name: 'deleteID',
+                message: 'Select role to delete',
+                choices: data.map(p=> ({value: p.id, name: p.role}))
+            }
+        ]).then(function(data){
+            connection.query('DELETE FROM role WHERE ?',
+            {
+                id: data.deleteID
+            },
+            function(err,res){
+                if(err) throw err;
+                viewAllRoles()
+            })
+        })
+    })
+};
+
 
 
 // =========MANGER==========//

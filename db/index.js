@@ -46,6 +46,7 @@ class DB {
         FROM role
         INNER JOIN department ON role.department_id=department.id ORDER BY role;`)
     };
+    
 
     // =========================MANAGER METHODS =============================//
     findAllManagers() {
