@@ -18,7 +18,7 @@ class DB {
 
     allEmployees() {
         return this.connection.promise().query(
-            `SELECT id, CONCAT(employees.first_name," ",employees.last_name) AS employee
+            `SELECT id, CONCAT(employees.first_name," ",employees.last_name) AS employee, manager_id AS manager
               FROM employees;`)
     }
     //======================================================================//

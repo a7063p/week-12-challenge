@@ -48,6 +48,10 @@ function startApp () {
                 value: 'updateEmployeeRole'
                },
                {
+                name: 'Update Employee Manager',
+                value: 'updateEmployeeManager'
+               },
+               {
                 name: 'EXIT Employee Tracker',
                 value: 'END'
                }
@@ -90,6 +94,10 @@ function startApp () {
 
             case 'updateEmployeeRole':           
             employeeRole();
+            break; 
+
+            case 'updateEmployeeManager':           
+            employeesManager();
             break;               
     
             default: 
@@ -153,7 +161,8 @@ function addEmployee() {
                 role_id: data.id
                 
             },
-            function() {                             
+            function(err,res) {
+                if(err) throw err;                             
                 addManager(data)
             })
            
@@ -175,7 +184,8 @@ function addManager(data) {
             connection.query('UPDATE employees SET ? ORDER BY id DESC limit 1',
             {
                 manager_id: input.id
-            },function(){
+            },function(err,res){
+                if(err) throw err;
                 viewAllEmployees()                
             })
         })
@@ -213,7 +223,8 @@ function addDepartment() {
         {
             name: data.newDeptName
         },
-         function() {
+         function(err,res) {
+             if(err) throw err;
             viewAllDepartments()
         })
     })    
@@ -292,7 +303,8 @@ function addRole() {
                 salary: data.salary,
                 department_id: data.id
             },
-             function() {
+             function(err,res) {
+                 if(err) throw err;
               viewAllRoles()
             })
         })
@@ -332,7 +344,8 @@ function updateEmployeeRole(data) {
                 {role_id: input.roleID },
                 {id: data.employeeID}
             ],            
-            function(){
+            function(err,res){
+                if(err) throw err;
                 viewAllEmployees()
             })
         })
@@ -358,6 +371,46 @@ function getAllManagers() {
             .then(([data]) => {
                 console.table(data);
                 startApp()
+            })
+        })
+    })
+};
+
+function employeesManager(){
+    db.allEmployees()
+    .then(([data]) =>{
+        prompt([
+            {
+                type: 'list',
+                name: 'employeeID',
+                message: 'Select employee to update their manager',
+                choices: data.map(p=> ({value: p.id, name: p.employee}))
+            }
+        ]).then(function(data){
+            updateEmployeeManager(data)
+        })
+    })
+};
+
+function updateEmployeeManager(data){
+    db.findAllManagers()
+    .then(([input])=>{
+        prompt([
+            {
+                type: 'list',
+                name: 'managerID',
+                message: 'Select new manager',
+                choices: input.map(p=>({value: p.id, name: p.manager}))
+            }
+        ]).then(function(input){
+            connection.query('UPDATE employees SET ? WHERE ?',
+            [
+                {manager_id: input.managerID },
+                {id: data.employeeID}
+            ],            
+            function(err,res){
+                if(err) throw err;
+                viewAllEmployees()
             })
         })
     })
