@@ -44,6 +44,10 @@ function startApp () {
                 value: 'addEmployee'
                },
                {
+                name: 'Update Employee Role',
+                value: 'updateEmployeeRole'
+               },
+               {
                 name: 'EXIT Employee Tracker',
                 value: 'END'
                }
@@ -82,6 +86,10 @@ function startApp () {
 
             case 'addEmployee':           
             addEmployee();
+            break;    
+
+            case 'updateEmployeeRole':           
+            updateEmployeeRole();
             break;               
     
             default: 
@@ -142,20 +150,44 @@ function addEmployee() {
             {
                 first_name: data.first_name,
                 last_name: data.last_name,
-                role_id: data.id,
-                manager_id: 1
+                role_id: data.id
+                
             },
             function() {
                 console.log(`
                 ==========================================================
                 Employee ${data.first_name} ${data.last_name} was Successfully Created
                 =========================================================`);
-               
+               addManager(data)
             })
            
         })     
     })   
 };
+function addManager(data) {
+    db.findAllManagers()
+    .then(([input]) => {
+        prompt([
+           {
+                type: 'list',
+                name: 'id',
+                message: `Please add a manager for ${data.first_name} ${data.last_name}`,
+                choices: input.map(p=> ({value: p.id, name: p.manager})),       
+            }
+        ]).then(function(input){
+            connection.query('UPDATE employees SET ? ORDER BY id DESC limit 1',
+            {
+                manager_id: input.id
+            },function(){
+                console.log(`
+                ==========================================================
+                ${data.first_name} ${data.last_name} was assigned to Manager ${input.manager} 
+                =========================================================`);
+                startApp()
+            })
+        })
+    })
+}
 
 
 //  =======DEPARTMENT=========//
