@@ -21,7 +21,7 @@ class DB {
     // ==============DEPARTMENT METHODS====================================//
 
     findAllDepartments() {
-        return this.connection.promise().query('SELECT id, name FROM department;')
+        return this.connection.promise().query('SELECT id, name AS department FROM department;')
     };
 
     employeesByDepartment(id) {
@@ -33,21 +33,29 @@ class DB {
      };
     //  =====================================================================//
 
+    // ============ROLES=====================================================//
+    findAllRoles() {
+        return this.connection.promise().query(
+        `SELECT role.id, role.title AS role, department.name AS department, role.salary
+        FROM role
+        INNER JOIN department ON role.department_id=department.id ORDER BY role;`)
+    };
+
     // =========================MANAGER METHODS =============================//
     findAllManagers() {
         return this.connection.promise().query(
-        `SELECT e.id, e.first_name, e.last_name AS manager 
+        `SELECT e.id, CONCAT(e.first_name, " ", e.last_name) AS manager 
         FROM employees 
         INNER JOIN employees AS e ON employees.manager_id = e.id GROUP BY manager;`
         )
     };
 
-    employeeByManger(id){
-        return this.connection.promise().query(
-        `SELECT CONCAT(e.first_name, " ", e.last_name) AS manager,CONCAT(employees.first_name, " ", employees.last_name) AS employee
+    employeesByManager(id) {
+        return this.connection.promise().query(`
+        SELECT CONCAT(e.first_name, " ", e.last_name) AS manager,CONCAT(employees.first_name, " ", employees.last_name) AS employee
         FROM employees
-        INNER JOIN employees AS e on employees.manager_id=e.id WHERE id=?;`, id)
-    };
+        INNER JOIN employees AS e on employees.manager_id=e.id WHERE e.id=?;`, id)        
+     };
   
 
  

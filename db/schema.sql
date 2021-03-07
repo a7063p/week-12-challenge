@@ -29,23 +29,4 @@ CREATE TABLE `employees` (
 	  FOREIGN KEY(`manager_id`) REFERENCES `employees`(`id`) ON DELETE SET NULL   
 );
 
--- -- Manager
--- SELECT employees.id, employees.first_name, employees.last_name, CONCAT(e.first_name, " ", e.last_name) AS manager 
--- FROM employees
--- LEFT JOIN employees AS e on employees.manager_id=e.id;
-
-
--- -- Managers employee's
-SELECT CONCAT(e.first_name, " ", e.last_name) AS manager,CONCAT(employees.first_name, " ", employees.last_name) AS employee
-FROM employees
-INNER JOIN employees AS e on employees.manager_id=e.id;
-
-
--- manager list
-SELECT e.id, CONCAT(e.first_name, " ", e.last_name) AS manager 
-FROM employees 
-INNER JOIN employees AS e ON employees.manager_id = e.id GROUP BY manager;
-
-
-
 
