@@ -89,7 +89,7 @@ function startApp () {
             break;    
 
             case 'updateEmployeeRole':           
-            updateEmployeeRole();
+            employeeRole();
             break;               
     
             default: 
@@ -153,12 +153,8 @@ function addEmployee() {
                 role_id: data.id
                 
             },
-            function() {
-                console.log(`
-                ==========================================================
-                Employee ${data.first_name} ${data.last_name} was Successfully Created
-                =========================================================`);
-               addManager(data)
+            function() {                             
+                addManager(data)
             })
            
         })     
@@ -175,15 +171,12 @@ function addManager(data) {
                 choices: input.map(p=> ({value: p.id, name: p.manager})),       
             }
         ]).then(function(input){
+            console.log(input);
             connection.query('UPDATE employees SET ? ORDER BY id DESC limit 1',
             {
                 manager_id: input.id
             },function(){
-                console.log(`
-                ==========================================================
-                ${data.first_name} ${data.last_name} was assigned to Manager ${input.manager} 
-                =========================================================`);
-                startApp()
+                viewAllEmployees()                
             })
         })
     })
@@ -198,7 +191,7 @@ function viewAllDepartments(){
         console.table(data)
         startApp()
     })
-}
+};
 
 function addDepartment() {
     prompt([
@@ -221,14 +214,10 @@ function addDepartment() {
             name: data.newDeptName
         },
          function() {
-            console.log(`
-            ============================================
-            Department ${data.newDeptName} Successfully Created
-            ============================================`);
-            startApp();
+            viewAllDepartments()
         })
     })    
-}
+};
 
 function getAllDepartments() {
     db.findAllDepartments()
@@ -304,16 +293,52 @@ function addRole() {
                 department_id: data.id
             },
              function() {
-                console.log(`
-                ============================================
-                Role ${data.newRoleTitle} Successfully Created
-                ============================================`);
-                startApp();
+              viewAllRoles()
             })
         })
     })
 };
 
+function employeeRole() {
+    db.allEmployees()
+    .then(([data])=>{
+        
+        prompt([
+        {
+            type: 'list',
+            name: 'employeeID',
+            message: 'Select the employee to update their role.',
+            choices: data.map(p=>({value: p.id, name: p.employee}))
+        }]).then(function(data){
+            updateEmployeeRole(data)
+        })       
+    })
+};
+function updateEmployeeRole(data) {
+    db.findAllRoles()
+    .then(([input])=>{
+        
+        prompt([
+            {
+                type: 'list',
+                name: 'roleID',
+                message: `Select new role for ${data.employee}`,
+                choices: input.map(p=>({value: p.id, name: p.role}))
+
+            }
+        ]).then(function(input){
+            connection.query('UPDATE employees SET ? WHERE ?',
+            [
+                {role_id: input.roleID },
+                {id: data.employeeID}
+            ],            
+            function(){
+                viewAllEmployees()
+            })
+        })
+        
+    })
+}
 
 
 // =========MANGER==========//

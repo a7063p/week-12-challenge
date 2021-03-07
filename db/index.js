@@ -15,6 +15,12 @@ class DB {
         INNER JOIN department ON role.department_id = department.id
         LEFT JOIN employees AS e ON employees.manager_id = e.id ORDER BY employees.id;`)
     };  
+
+    allEmployees() {
+        return this.connection.promise().query(
+            `SELECT id, CONCAT(employees.first_name," ",employees.last_name) AS employee
+              FROM employees;`)
+    }
     //======================================================================//
 
 
